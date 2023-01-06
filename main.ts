@@ -1,27 +1,8 @@
-let enabled = false
 let radioId = 0
-let isController = false
+let enabled = false
 namespace RadioGameController {
 
     export enum ControllerButtons {
-        Up,
-        Down,
-        Left,
-        Right,
-        Fire1,
-        Fire2
-    }
-
-    export enum ControllerButtonEvents {
-        //% block="down"
-        Down = DAL.MICROBIT_BUTTON_EVT_DOWN,
-        //% block="up"
-        Up = DAL.MICROBIT_BUTTON_EVT_UP,
-        //% block="click"
-        Click = DAL.MICROBIT_BUTTON_EVT_CLICK
-    }
-
-    export enum ControllerButtonPins {
         //% block="Joypad Up"
         Up = DAL.MICROBIT_ID_IO_P8,
         //% block="Joypad Down"
@@ -36,19 +17,20 @@ namespace RadioGameController {
         Fire2 = DAL.MICROBIT_ID_IO_P16
     }
 
+    export enum ControllerButtonEvents {
+        //% block="down"
+        Down = DAL.MICROBIT_BUTTON_EVT_DOWN,
+        //% block="up"
+        Up = DAL.MICROBIT_BUTTON_EVT_UP,
+        //% block="click"
+        Click = DAL.MICROBIT_BUTTON_EVT_CLICK
+    }
+
     //% block
-    export function enable(radio2: number, controller: boolean) {
+    export function enable(radio2: number) {
         radioId = radio2
-        isController = controller
         enabled = true
         radio.setGroup(radioId)
-        radio.sendString("reset")
-    }
-    //% block
-    export function reset() {
-        if (enabled) {
-            radio.sendString("reset")
-        }
     }
     //% block
     export function disable() {
@@ -56,69 +38,65 @@ namespace RadioGameController {
     }
 
     //% block
-    export function onButtonPress(button: ControllerButtonPins, event: ControllerButtonEvents, handler: Action) {
+    export function onButtonPress(button: ControllerButtons, event: ControllerButtonEvents, handler: Action) {
         control.onEvent(<number>button, <number>event, handler);
     }
 
     function doActionLeft(event: string) {
         if (event == "u") {
-            control.raiseEvent(ControllerButtonPins.Left, ControllerButtonEvents.Up)
+            control.raiseEvent(ControllerButtons.Left, ControllerButtonEvents.Up)
         } else if (event == "d") {
-            control.raiseEvent(ControllerButtonPins.Left, ControllerButtonEvents.Down)
+            control.raiseEvent(ControllerButtons.Left, ControllerButtonEvents.Down)
         } else if (event == "c") {
-            control.raiseEvent(ControllerButtonPins.Left, ControllerButtonEvents.Click)
+            control.raiseEvent(ControllerButtons.Left, ControllerButtonEvents.Click)
         }
     }
     function doActionRight(event: string) {
         if (event == "u") {
-            control.raiseEvent(ControllerButtonPins.Right, ControllerButtonEvents.Up)
+            control.raiseEvent(ControllerButtons.Right, ControllerButtonEvents.Up)
         } else if (event == "d") {
-            control.raiseEvent(ControllerButtonPins.Right, ControllerButtonEvents.Down)
+            control.raiseEvent(ControllerButtons.Right, ControllerButtonEvents.Down)
         } else if (event == "c") {
-            control.raiseEvent(ControllerButtonPins.Right, ControllerButtonEvents.Click)
+            control.raiseEvent(ControllerButtons.Right, ControllerButtonEvents.Click)
         }
-
-    }
-    function doActionReset() {
-
     }
     function doActionFire2(event: string) {
         if (event == "u") {
-            control.raiseEvent(ControllerButtonPins.Fire2, ControllerButtonEvents.Up)
+            control.raiseEvent(ControllerButtons.Fire2, ControllerButtonEvents.Up)
         } else if (event == "d") {
-            control.raiseEvent(ControllerButtonPins.Fire2, ControllerButtonEvents.Down)
+            control.raiseEvent(ControllerButtons.Fire2, ControllerButtonEvents.Down)
         } else if (event == "c") {
-            control.raiseEvent(ControllerButtonPins.Fire2, ControllerButtonEvents.Click)
+            control.raiseEvent(ControllerButtons.Fire2, ControllerButtonEvents.Click)
         }
 
     }
     function doActionUp(event: string) {
         if (event == "u") {
-            control.raiseEvent(ControllerButtonPins.Up, ControllerButtonEvents.Up)
+            control.raiseEvent(ControllerButtons.Up, ControllerButtonEvents.Up)
         } else if (event == "d") {
-            control.raiseEvent(ControllerButtonPins.Up, ControllerButtonEvents.Down)
+            control.raiseEvent(ControllerButtons.Up, ControllerButtonEvents.Down)
         } else if (event == "c") {
-            control.raiseEvent(ControllerButtonPins.Up, ControllerButtonEvents.Click)
+            control.raiseEvent(ControllerButtons.Up, ControllerButtonEvents.Click)
         }
 
     }
     function doActionFire1(event: string) {
         if (event == "u") {
-            control.raiseEvent(ControllerButtonPins.Fire1, ControllerButtonEvents.Up)
+            control.raiseEvent(ControllerButtons.Fire1, ControllerButtonEvents.Up)
         } else if (event == "d") {
-            control.raiseEvent(ControllerButtonPins.Fire1, ControllerButtonEvents.Down)
+            control.raiseEvent(ControllerButtons.Fire1, ControllerButtonEvents.Down)
         } else if (event == "c") {
-            control.raiseEvent(ControllerButtonPins.Fire1, ControllerButtonEvents.Click)
+            control.raiseEvent(ControllerButtons.Fire1, ControllerButtonEvents.Click)
         }
 
     }
     function doActionDown(event: string) {
         if (event == "u") {
-            control.raiseEvent(ControllerButtonPins.Down, ControllerButtonEvents.Up)
+            control.raiseEvent(ControllerButtons.Down, ControllerButtonEvents.Up)
         } else if (event == "d") {
-            control.raiseEvent(ControllerButtonPins.Right, ControllerButtonEvents.Down)
+            control.raiseEvent(ControllerButtons.Right, ControllerButtonEvents.Down)
         } else if (event == "c") {
-            control.raiseEvent(ControllerButtonPins.Right, ControllerButtonEvents.Click)
+            control.raiseEvent(ControllerButtons.Right, ControllerButtonEvents.Click)
         }
 
     }
@@ -216,13 +194,6 @@ namespace RadioGameController {
             doActionUp(event4)
         }
     }
-    radio.onReceivedString(function (receivedString) {
-        if (enabled) {
-            if (receivedString == "reset") {
-                doActionReset()
-            }
-        }
-    })
     radio.onReceivedValue(function (name, value) {
         if (enabled) {
             if (name == "up") {
