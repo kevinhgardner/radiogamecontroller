@@ -1,233 +1,121 @@
-let radioId = 0
-let enabled = false
 namespace RadioGameController {
 
-    export enum ControllerButtons {
-        //% block="Joypad Up"
-        Up = DAL.MICROBIT_ID_IO_P8,
-        //% block="Joypad Down"
-        Down = DAL.MICROBIT_ID_IO_P14,
-        //% block="Joypad Left"
-        Left = DAL.MICROBIT_ID_IO_P12,
-        //% block="Joypad Right"
-        Right = DAL.MICROBIT_ID_IO_P13,
-        //% block="Fire 1"
-        Fire1 = DAL.MICROBIT_ID_IO_P15,
-        //% block="Fire 2"
-        Fire2 = DAL.MICROBIT_ID_IO_P16
-    }
-
-    export enum ControllerButtonEvents {
-        //% block="down"
-        Down = DAL.MICROBIT_BUTTON_EVT_DOWN,
-        //% block="up"
-        Up = DAL.MICROBIT_BUTTON_EVT_UP,
-        //% block="click"
-        Click = DAL.MICROBIT_BUTTON_EVT_CLICK
-    }
+    let isController = false;
 
     //% block
-    export function enable(radio2: number) {
-        radioId = radio2
-        enabled = true
+    export function enable(radioId: number) {
         radio.setGroup(radioId)
     }
-    //% block
-    export function disable() {
-        enabled = false
-    }
+
+    let handlers: Action[][] = [[]];
 
     //% block
-    export function onButtonPress(button: ControllerButtons, event: ControllerButtonEvents, handler: Action) {
-        control.onEvent(<number>button, <number>event, handler);
+    export function onButtonPress(button: Kitronik_Game_Controller.ControllerButtonPins, event: Kitronik_Game_Controller.ControllerButtonEvents, handler: Action) {
+        if (!handlers[button]) {
+            handlers[button] = [];
+        }
+        handlers[button][event] = handler;
     }
 
-    function doActionLeft(event: string) {
-        if (event == "u") {
-            control.raiseEvent(ControllerButtons.Left, ControllerButtonEvents.Up)
-        } else if (event == "d") {
-            control.raiseEvent(ControllerButtons.Left, ControllerButtonEvents.Down)
-        } else if (event == "c") {
-            control.raiseEvent(ControllerButtons.Left, ControllerButtonEvents.Click)
+    function doAction(button: Kitronik_Game_Controller.ControllerButtonPins, event: Kitronik_Game_Controller.ControllerButtonEvents) {
+        doSendButtonState(button, event)
+        if (handlers[button] && handlers[button][event]) {
+            handlers[button][event]()
         }
-    }
-    function doActionRight(event: string) {
-        if (event == "u") {
-            control.raiseEvent(ControllerButtons.Right, ControllerButtonEvents.Up)
-        } else if (event == "d") {
-            control.raiseEvent(ControllerButtons.Right, ControllerButtonEvents.Down)
-        } else if (event == "c") {
-            control.raiseEvent(ControllerButtons.Right, ControllerButtonEvents.Click)
-        }
-    }
-    function doActionFire2(event: string) {
-        if (event == "u") {
-            control.raiseEvent(ControllerButtons.Fire2, ControllerButtonEvents.Up)
-        } else if (event == "d") {
-            control.raiseEvent(ControllerButtons.Fire2, ControllerButtonEvents.Down)
-        } else if (event == "c") {
-            control.raiseEvent(ControllerButtons.Fire2, ControllerButtonEvents.Click)
-        }
-
-    }
-    function doActionUp(event: string) {
-        if (event == "u") {
-            control.raiseEvent(ControllerButtons.Up, ControllerButtonEvents.Up)
-        } else if (event == "d") {
-            control.raiseEvent(ControllerButtons.Up, ControllerButtonEvents.Down)
-        } else if (event == "c") {
-            control.raiseEvent(ControllerButtons.Up, ControllerButtonEvents.Click)
-        }
-
-    }
-    function doActionFire1(event: string) {
-        if (event == "u") {
-            control.raiseEvent(ControllerButtons.Fire1, ControllerButtonEvents.Up)
-        } else if (event == "d") {
-            control.raiseEvent(ControllerButtons.Fire1, ControllerButtonEvents.Down)
-        } else if (event == "c") {
-            control.raiseEvent(ControllerButtons.Fire1, ControllerButtonEvents.Click)
-        }
-
-    }
-    function doActionDown(event: string) {
-        if (event == "u") {
-            control.raiseEvent(ControllerButtons.Down, ControllerButtonEvents.Up)
-        } else if (event == "d") {
-            control.raiseEvent(ControllerButtons.Right, ControllerButtonEvents.Down)
-        } else if (event == "c") {
-            control.raiseEvent(ControllerButtons.Right, ControllerButtonEvents.Click)
-        }
-
     }
 
-    function doButtonRight(event5: string) {
-        if (enabled) {
-            doSendButtonState("right", event5)
-            doActionRight(event5)
-        }
-    }
-    function doGetEventFromNum(num: number) {
-        if (num == 0) {
-            return "u"
-        } else if (num == 1) {
-            return "d"
-        } else if (num == 2) {
-            return "c"
-        }
-        return ""
-    }
-    Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Fire1, Kitronik_Game_Controller.ControllerButtonEvents.Down, function () {
-        doButtonFire1("d")
-    })
-    Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Right, Kitronik_Game_Controller.ControllerButtonEvents.Click, function () {
-        doButtonRight("c")
-    })
-    function doButtonFire2(event8: string) {
-        if (enabled) {
-            doSendButtonState("fire2", event8)
-            doActionFire2(event8)
-        }
-    }
-    Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Fire2, Kitronik_Game_Controller.ControllerButtonEvents.Down, function () {
-        doButtonFire2("d")
-    })
-    Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Up, Kitronik_Game_Controller.ControllerButtonEvents.Click, function () {
-        doButtonUp("c")
-    })
-    Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Right, Kitronik_Game_Controller.ControllerButtonEvents.Up, function () {
-        doButtonRight("u")
-    })
-    Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Down, Kitronik_Game_Controller.ControllerButtonEvents.Up, function () {
-        doButtonDown("u")
-    })
-    Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Down, Kitronik_Game_Controller.ControllerButtonEvents.Click, function () {
-        doButtonDown("c")
-    })
-    Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Down, Kitronik_Game_Controller.ControllerButtonEvents.Down, function () {
-        doButtonDown("d")
-    })
-    Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Left, Kitronik_Game_Controller.ControllerButtonEvents.Up, function () {
-        doButtonLeft("u")
-    })
-    function doButtonDown(event2: string) {
-        if (enabled) {
-            doSendButtonState("down", event2)
-            doActionDown(event2)
-        }
-    }
-    function doButtonFire1(event: string) {
-        if (enabled) {
-            doSendButtonState("fire1", event)
-            doActionFire1(event)
-        }
-    }
-    Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Fire2, Kitronik_Game_Controller.ControllerButtonEvents.Click, function () {
-        doButtonFire2("c")
+    Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Up, Kitronik_Game_Controller.ControllerButtonEvents.Up, function () {
+        doAction(Kitronik_Game_Controller.ControllerButtonPins.Up, Kitronik_Game_Controller.ControllerButtonEvents.Up)
     })
     Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Up, Kitronik_Game_Controller.ControllerButtonEvents.Down, function () {
-        doButtonUp("d")
+        doAction(Kitronik_Game_Controller.ControllerButtonPins.Up, Kitronik_Game_Controller.ControllerButtonEvents.Down)
     })
-    function doButtonLeft(event6: string) {
-        if (enabled) {
-            doSendButtonState("left", event6)
-            doActionLeft(event6)
-        }
-    }
-    Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Fire2, Kitronik_Game_Controller.ControllerButtonEvents.Up, function () {
-        doButtonFire2("u")
+    Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Up, Kitronik_Game_Controller.ControllerButtonEvents.Click, function () {
+        doAction(Kitronik_Game_Controller.ControllerButtonPins.Up, Kitronik_Game_Controller.ControllerButtonEvents.Click)
     })
-    function doSendButtonState(id2: string, event3: string) {
-        if (enabled) {
-            if (event3 == "u") {
-                radio.sendValue(id2, 0)
-            } else if (event3 == "d") {
-                radio.sendValue(id2, 1)
-            } else if (event3 == "c") {
-                radio.sendValue(id2, 2)
-            }
-        }
-    }
-    function doButtonUp(event4: string) {
-        if (enabled) {
-            doSendButtonState("up", event4)
-            doActionUp(event4)
-        }
-    }
-    radio.onReceivedValue(function (name, value) {
-        if (enabled) {
-            if (name == "up") {
-                doActionUp(doGetEventFromNum(value))
-            } else if (name == "down") {
-                doActionDown(doGetEventFromNum(value))
-            } else if (name == "left") {
-                doActionLeft(doGetEventFromNum(value))
-            } else if (name == "right") {
-                doActionRight(doGetEventFromNum(value))
-            } else if (name == "fire1") {
-                doActionFire1(doGetEventFromNum(value))
-            } else if (name == "fire2") {
-                doActionFire2(doGetEventFromNum(value))
-            }
-        }
+    Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Down, Kitronik_Game_Controller.ControllerButtonEvents.Up, function () {
+        doAction(Kitronik_Game_Controller.ControllerButtonPins.Down, Kitronik_Game_Controller.ControllerButtonEvents.Up)
     })
-    Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Up, Kitronik_Game_Controller.ControllerButtonEvents.Up, function () {
-        doButtonUp("u")
+    Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Down, Kitronik_Game_Controller.ControllerButtonEvents.Down, function () {
+        doAction(Kitronik_Game_Controller.ControllerButtonPins.Down, Kitronik_Game_Controller.ControllerButtonEvents.Down)
     })
-    Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Fire1, Kitronik_Game_Controller.ControllerButtonEvents.Up, function () {
-        doButtonFire1("u")
+    Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Down, Kitronik_Game_Controller.ControllerButtonEvents.Click, function () {
+        doAction(Kitronik_Game_Controller.ControllerButtonPins.Down, Kitronik_Game_Controller.ControllerButtonEvents.Click)
     })
-    Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Left, Kitronik_Game_Controller.ControllerButtonEvents.Click, function () {
-        doButtonLeft("c")
+    Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Right, Kitronik_Game_Controller.ControllerButtonEvents.Up, function () {
+        doAction(Kitronik_Game_Controller.ControllerButtonPins.Right, Kitronik_Game_Controller.ControllerButtonEvents.Up)
     })
     Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Right, Kitronik_Game_Controller.ControllerButtonEvents.Down, function () {
-        doButtonRight("d")
+        doAction(Kitronik_Game_Controller.ControllerButtonPins.Right, Kitronik_Game_Controller.ControllerButtonEvents.Down)
     })
-    Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Fire1, Kitronik_Game_Controller.ControllerButtonEvents.Click, function () {
-        doButtonFire1("c")
+    Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Right, Kitronik_Game_Controller.ControllerButtonEvents.Click, function () {
+        doAction(Kitronik_Game_Controller.ControllerButtonPins.Right, Kitronik_Game_Controller.ControllerButtonEvents.Click)
+    })
+    Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Left, Kitronik_Game_Controller.ControllerButtonEvents.Up, function () {
+        doAction(Kitronik_Game_Controller.ControllerButtonPins.Left, Kitronik_Game_Controller.ControllerButtonEvents.Up)
     })
     Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Left, Kitronik_Game_Controller.ControllerButtonEvents.Down, function () {
-        doButtonLeft("d")
+        doAction(Kitronik_Game_Controller.ControllerButtonPins.Left, Kitronik_Game_Controller.ControllerButtonEvents.Down)
     })
+    Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Left, Kitronik_Game_Controller.ControllerButtonEvents.Click, function () {
+        doAction(Kitronik_Game_Controller.ControllerButtonPins.Left, Kitronik_Game_Controller.ControllerButtonEvents.Click)
+    })
+    Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Fire1, Kitronik_Game_Controller.ControllerButtonEvents.Up, function () {
+        doAction(Kitronik_Game_Controller.ControllerButtonPins.Fire1, Kitronik_Game_Controller.ControllerButtonEvents.Up)
+    })
+    Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Fire1, Kitronik_Game_Controller.ControllerButtonEvents.Down, function () {
+        doAction(Kitronik_Game_Controller.ControllerButtonPins.Fire1, Kitronik_Game_Controller.ControllerButtonEvents.Down)
+    })
+    Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Fire1, Kitronik_Game_Controller.ControllerButtonEvents.Click, function () {
+        doAction(Kitronik_Game_Controller.ControllerButtonPins.Fire1, Kitronik_Game_Controller.ControllerButtonEvents.Click)
+    })
+    Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Fire2, Kitronik_Game_Controller.ControllerButtonEvents.Up, function () {
+        doAction(Kitronik_Game_Controller.ControllerButtonPins.Fire2, Kitronik_Game_Controller.ControllerButtonEvents.Up)
+    })
+    Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Fire2, Kitronik_Game_Controller.ControllerButtonEvents.Down, function () {
+        doAction(Kitronik_Game_Controller.ControllerButtonPins.Fire2, Kitronik_Game_Controller.ControllerButtonEvents.Down)
+    })
+    Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Fire2, Kitronik_Game_Controller.ControllerButtonEvents.Click, function () {
+        doAction(Kitronik_Game_Controller.ControllerButtonPins.Fire2, Kitronik_Game_Controller.ControllerButtonEvents.Click)
+    })
+
+    function doSendButtonState(button: Kitronik_Game_Controller.ControllerButtonPins, event: Kitronik_Game_Controller.ControllerButtonEvents) {
+        let name=""
+        if (button == Kitronik_Game_Controller.ControllerButtonPins.Up) {
+            name = "up"
+        } else if (button == Kitronik_Game_Controller.ControllerButtonPins.Down) {
+            name = "down"
+        } else if (button == Kitronik_Game_Controller.ControllerButtonPins.Left) {
+            name = "left"
+        } else if (button == Kitronik_Game_Controller.ControllerButtonPins.Right) {
+            name = "right"
+        } else if (button == Kitronik_Game_Controller.ControllerButtonPins.Fire1) {
+            name = "fire1"
+        } else if (button == Kitronik_Game_Controller.ControllerButtonPins.Fire2) {
+            name = "fire2"
+        }
+        radio.sendValue(name, event)
+    }
+
+    radio.onReceivedValue(function (name, value) {
+        let b = 0
+        if (name == "up") {
+            b = Kitronik_Game_Controller.ControllerButtonPins.Up;
+        } else if (name == "down") {
+            b = Kitronik_Game_Controller.ControllerButtonPins.Down;
+        } else if (name == "left") {
+            b = Kitronik_Game_Controller.ControllerButtonPins.Left;
+        } else if (name == "right") {
+            b = Kitronik_Game_Controller.ControllerButtonPins.Right;
+        } else if (name == "fire1") {
+            b = Kitronik_Game_Controller.ControllerButtonPins.Fire1;
+        } else if (name == "fire2") {
+            b = Kitronik_Game_Controller.ControllerButtonPins.Fire2;
+        }
+        if (handlers[b] && handlers[b][value]) {
+            handlers[b][value]()
+        }
+    })
+
 
 }
