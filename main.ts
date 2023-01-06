@@ -37,7 +37,14 @@ namespace RadioGameController {
     //% block
     export function enable(radioId: number) {
         if (!enabled) {
-            init(radioId)
+            init(radioId, false)
+        }
+    }
+
+    //% block
+    export function enableNoController(radioId: number) {
+        if (!enabled) {
+            init(radioId, true)
         }
     }
 
@@ -49,79 +56,80 @@ namespace RadioGameController {
         handlers[button][event] = handler;
     }
 
-    function init(radioId: number) {
+    function init(radioId: number, noController: boolean) {
         enabled = true;
         radio.setGroup(radioId)
-        Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Up, Kitronik_Game_Controller.ControllerButtonEvents.Up, function () {
-            doAction(RadioGameControllerButtons.Up, RadioGameControllerButtonEvents.Up)
-        })
-        Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Up, Kitronik_Game_Controller.ControllerButtonEvents.Down, function () {
-            doAction(RadioGameControllerButtons.Up, RadioGameControllerButtonEvents.Down)
-        })
-        Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Up, Kitronik_Game_Controller.ControllerButtonEvents.Click, function () {
-            doAction(RadioGameControllerButtons.Up, RadioGameControllerButtonEvents.Click)
-        })
-        Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Down, Kitronik_Game_Controller.ControllerButtonEvents.Up, function () {
-            doAction(RadioGameControllerButtons.Down, RadioGameControllerButtonEvents.Up)
-        })
-        Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Down, Kitronik_Game_Controller.ControllerButtonEvents.Down, function () {
-            doAction(RadioGameControllerButtons.Down, RadioGameControllerButtonEvents.Down)
-        })
-        Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Down, Kitronik_Game_Controller.ControllerButtonEvents.Click, function () {
-            doAction(RadioGameControllerButtons.Down, RadioGameControllerButtonEvents.Click)
-        })
-        Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Right, Kitronik_Game_Controller.ControllerButtonEvents.Up, function () {
-            doAction(RadioGameControllerButtons.Right, RadioGameControllerButtonEvents.Up)
-        })
-        Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Right, Kitronik_Game_Controller.ControllerButtonEvents.Down, function () {
-            doAction(RadioGameControllerButtons.Right, RadioGameControllerButtonEvents.Down)
-        })
-        Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Right, Kitronik_Game_Controller.ControllerButtonEvents.Click, function () {
-            doAction(RadioGameControllerButtons.Right, RadioGameControllerButtonEvents.Click)
-        })
-        Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Left, Kitronik_Game_Controller.ControllerButtonEvents.Up, function () {
-            doAction(RadioGameControllerButtons.Left, RadioGameControllerButtonEvents.Up)
-        })
-        Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Left, Kitronik_Game_Controller.ControllerButtonEvents.Down, function () {
-            doAction(RadioGameControllerButtons.Left, RadioGameControllerButtonEvents.Down)
-        })
-        Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Left, Kitronik_Game_Controller.ControllerButtonEvents.Click, function () {
-            doAction(RadioGameControllerButtons.Left, RadioGameControllerButtonEvents.Click)
-        })
-        Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Fire1, Kitronik_Game_Controller.ControllerButtonEvents.Up, function () {
-            doAction(RadioGameControllerButtons.Fire1, RadioGameControllerButtonEvents.Up)
-        })
-        Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Fire1, Kitronik_Game_Controller.ControllerButtonEvents.Down, function () {
-            doAction(RadioGameControllerButtons.Fire1, RadioGameControllerButtonEvents.Down)
-        })
-        Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Fire1, Kitronik_Game_Controller.ControllerButtonEvents.Click, function () {
-            doAction(RadioGameControllerButtons.Fire1, RadioGameControllerButtonEvents.Click)
-        })
-        Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Fire2, Kitronik_Game_Controller.ControllerButtonEvents.Up, function () {
-            doAction(RadioGameControllerButtons.Fire2, RadioGameControllerButtonEvents.Up)
-        })
-        Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Fire2, Kitronik_Game_Controller.ControllerButtonEvents.Down, function () {
-            doAction(RadioGameControllerButtons.Fire2, RadioGameControllerButtonEvents.Down)
-        })
-        Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Fire2, Kitronik_Game_Controller.ControllerButtonEvents.Click, function () {
-            doAction(RadioGameControllerButtons.Fire2, RadioGameControllerButtonEvents.Click)
-        })
-        input.onButtonPressed(Button.A, function () {
-            doAction(RadioGameControllerButtons.ButtonA, RadioGameControllerButtonEvents.Click)
-            doAction(RadioGameControllerButtons.ButtonA, RadioGameControllerButtonEvents.Up)
-            doAction(RadioGameControllerButtons.ButtonA, RadioGameControllerButtonEvents.Down)
-        })
-        input.onButtonPressed(Button.B, function () {
-            doAction(RadioGameControllerButtons.ButtonB, RadioGameControllerButtonEvents.Click)
-            doAction(RadioGameControllerButtons.ButtonB, RadioGameControllerButtonEvents.Up)
-            doAction(RadioGameControllerButtons.ButtonB, RadioGameControllerButtonEvents.Down)
-        })
-        input.onButtonPressed(Button.AB, function () {
-            doAction(RadioGameControllerButtons.ButtonAB, RadioGameControllerButtonEvents.Click)
-            doAction(RadioGameControllerButtons.ButtonAB, RadioGameControllerButtonEvents.Up)
-            doAction(RadioGameControllerButtons.ButtonAB, RadioGameControllerButtonEvents.Down)
-        })
-
+        if (!noController) {
+            Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Up, Kitronik_Game_Controller.ControllerButtonEvents.Up, function () {
+                doAction(RadioGameControllerButtons.Up, RadioGameControllerButtonEvents.Up)
+            })
+            Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Up, Kitronik_Game_Controller.ControllerButtonEvents.Down, function () {
+                doAction(RadioGameControllerButtons.Up, RadioGameControllerButtonEvents.Down)
+            })
+            Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Up, Kitronik_Game_Controller.ControllerButtonEvents.Click, function () {
+                doAction(RadioGameControllerButtons.Up, RadioGameControllerButtonEvents.Click)
+            })
+            Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Down, Kitronik_Game_Controller.ControllerButtonEvents.Up, function () {
+                doAction(RadioGameControllerButtons.Down, RadioGameControllerButtonEvents.Up)
+            })
+            Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Down, Kitronik_Game_Controller.ControllerButtonEvents.Down, function () {
+                doAction(RadioGameControllerButtons.Down, RadioGameControllerButtonEvents.Down)
+            })
+            Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Down, Kitronik_Game_Controller.ControllerButtonEvents.Click, function () {
+                doAction(RadioGameControllerButtons.Down, RadioGameControllerButtonEvents.Click)
+            })
+            Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Right, Kitronik_Game_Controller.ControllerButtonEvents.Up, function () {
+                doAction(RadioGameControllerButtons.Right, RadioGameControllerButtonEvents.Up)
+            })
+            Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Right, Kitronik_Game_Controller.ControllerButtonEvents.Down, function () {
+                doAction(RadioGameControllerButtons.Right, RadioGameControllerButtonEvents.Down)
+            })
+            Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Right, Kitronik_Game_Controller.ControllerButtonEvents.Click, function () {
+                doAction(RadioGameControllerButtons.Right, RadioGameControllerButtonEvents.Click)
+            })
+            Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Left, Kitronik_Game_Controller.ControllerButtonEvents.Up, function () {
+                doAction(RadioGameControllerButtons.Left, RadioGameControllerButtonEvents.Up)
+            })
+            Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Left, Kitronik_Game_Controller.ControllerButtonEvents.Down, function () {
+                doAction(RadioGameControllerButtons.Left, RadioGameControllerButtonEvents.Down)
+            })
+            Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Left, Kitronik_Game_Controller.ControllerButtonEvents.Click, function () {
+                doAction(RadioGameControllerButtons.Left, RadioGameControllerButtonEvents.Click)
+            })
+            Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Fire1, Kitronik_Game_Controller.ControllerButtonEvents.Up, function () {
+                doAction(RadioGameControllerButtons.Fire1, RadioGameControllerButtonEvents.Up)
+            })
+            Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Fire1, Kitronik_Game_Controller.ControllerButtonEvents.Down, function () {
+                doAction(RadioGameControllerButtons.Fire1, RadioGameControllerButtonEvents.Down)
+            })
+            Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Fire1, Kitronik_Game_Controller.ControllerButtonEvents.Click, function () {
+                doAction(RadioGameControllerButtons.Fire1, RadioGameControllerButtonEvents.Click)
+            })
+            Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Fire2, Kitronik_Game_Controller.ControllerButtonEvents.Up, function () {
+                doAction(RadioGameControllerButtons.Fire2, RadioGameControllerButtonEvents.Up)
+            })
+            Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Fire2, Kitronik_Game_Controller.ControllerButtonEvents.Down, function () {
+                doAction(RadioGameControllerButtons.Fire2, RadioGameControllerButtonEvents.Down)
+            })
+            Kitronik_Game_Controller.onButtonPress(Kitronik_Game_Controller.ControllerButtonPins.Fire2, Kitronik_Game_Controller.ControllerButtonEvents.Click, function () {
+                doAction(RadioGameControllerButtons.Fire2, RadioGameControllerButtonEvents.Click)
+            })
+            input.onButtonPressed(Button.A, function () {
+                doAction(RadioGameControllerButtons.ButtonA, RadioGameControllerButtonEvents.Click)
+                doAction(RadioGameControllerButtons.ButtonA, RadioGameControllerButtonEvents.Up)
+                doAction(RadioGameControllerButtons.ButtonA, RadioGameControllerButtonEvents.Down)
+            })
+            input.onButtonPressed(Button.B, function () {
+                doAction(RadioGameControllerButtons.ButtonB, RadioGameControllerButtonEvents.Click)
+                doAction(RadioGameControllerButtons.ButtonB, RadioGameControllerButtonEvents.Up)
+                doAction(RadioGameControllerButtons.ButtonB, RadioGameControllerButtonEvents.Down)
+            })
+            input.onButtonPressed(Button.AB, function () {
+                doAction(RadioGameControllerButtons.ButtonAB, RadioGameControllerButtonEvents.Click)
+                doAction(RadioGameControllerButtons.ButtonAB, RadioGameControllerButtonEvents.Up)
+                doAction(RadioGameControllerButtons.ButtonAB, RadioGameControllerButtonEvents.Down)
+            })
+        }
     }
 
     function doAction(button: RadioGameControllerButtons, event: RadioGameControllerButtonEvents) {
