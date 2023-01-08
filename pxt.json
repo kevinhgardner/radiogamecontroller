@@ -4,8 +4,7 @@
     "dependencies": {
         "core": "*",
         "radio": "*",
-        "microphone": "*",
-        "pxt-kitronik-game-controller": "github:kitronikltd/pxt-kitronik-game-controller#V0.0.4"
+        "microphone": "*"
     },
     "files": [
         "main.ts",
