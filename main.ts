@@ -50,7 +50,15 @@ namespace RadioGameController {
         }
     }
 
-    //% block
+    /**
+     * Do something when one of the :GAME Controller Buttons is pressed
+     * @param button press to be checked
+     * @param event happening on the button, eg: click
+     */
+    //% group=Inputs
+    //% blockId="kevin_controller_button_press_on_event" block="on button %button|press %event"
+    //% button.fieldEditor="gridpicker" button.fieldOptions.columns=3
+    //% weight=93 blockGap=8
     export function onButtonPress(button: RadioControllerButtonPins, event: RadioControllerButtonEvents, handler: Action) {
         if (!handlers) {
             handlers = [];
