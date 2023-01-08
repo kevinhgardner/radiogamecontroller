@@ -72,6 +72,9 @@ namespace RadioGameController {
     function init(radioId: number, noController: boolean) {
         enabled=true;
         radio.setGroup(radioId)
+        if (!handlers) {
+            handlers = [];
+        }
 
         control.onEvent(RadioControllerButtonPins.ButtonAB, RadioControllerButtonEvents.Up, () => doAction(RadioControllerButtonPins.ButtonAB, RadioControllerButtonEvents.Up))
         control.onEvent(RadioControllerButtonPins.ButtonA, RadioControllerButtonEvents.Up, () => doAction(RadioControllerButtonPins.ButtonA, RadioControllerButtonEvents.Up))
