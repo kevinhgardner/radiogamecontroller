@@ -9,9 +9,9 @@
     },
     "files": [
         "main.ts",
-	"main.cpp",
-	"shim.d.ts",
-        "README.md"
+        "main.cpp",
+        "README.md",
+        "shim.d.ts"
     ],
     "testFiles": [
         "test.ts"
