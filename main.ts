@@ -1,12 +1,14 @@
 
 //% weight=100 color=#00A654 icon="\uf11b" block=":Radio GAME Controller"
-//% groups='["Inputs", "Feedback"]'
+//% groups='["Radio", "Inputs", "Feedback"]'
 namespace RadioGameController {
 
-    let handlers: Action[][];
+    let handlers: {[x: number]: {[y: number]: Action}};
+    let remoteState: {[x: number]: number} = {}; // 0: up, 1: down
     let enabled: boolean;
+    let mode: Mode;
 
-    export enum RadioControllerButtonPins {
+    export enum ButtonPins {
         //% block="Joypad Up (P8)"
         Up = DAL.MICROBIT_ID_IO_P8,
         //% block="Joypad Down (P14)"
@@ -27,7 +29,7 @@ namespace RadioGameController {
         ButtonAB = DAL.MICROBIT_ID_BUTTON_AB
     }
 
-    export enum RadioControllerButtonEvents {
+    export enum ButtonEvents {
         //% block="down"
         Down = DAL.MICROBIT_BUTTON_EVT_DOWN,
         //% block="up"
@@ -36,18 +38,35 @@ namespace RadioGameController {
         Click = DAL.MICROBIT_BUTTON_EVT_CLICK
     }
 
-    //% block
-    export function enable(radioId: number) {
+    export enum Mode {
+        //% block="Controller"
+        CONTROLLER,
+        //% block="Slave"
+        SLAVE
+    }
+
+    //% group=Radio
+    //% blockId="radio_enable" block="Enable with radioId $radioId for mode $mode"
+    //% weight=95 blockGap=8
+    export function enable(radioId: number, mode: Mode) {
         if (!enabled) {
-            init(radioId, false)
+            initRadio(radioId, mode)
         }
     }
 
-    //% block
-    export function enableNoController(radioId: number) {
-        if (!enabled) {
-            init(radioId, true)
+    /**
+     * Determines if a :GAME Controller button is pressed
+     * @param button press to be checked
+     */
+    //% group=Inputs
+    //% blockId="kevin_controller_ispressed" block="button %button|is pressed"
+    //% button.fieldEditor="gridpicker" button.fieldOptions.columns=3
+    //% weight=95 blockGap=8
+    export function buttonIsPressed(button: ButtonPins): boolean {
+        if (remoteState[button]) {
+            return true;
         }
+        return false;
     }
 
     /**
@@ -59,77 +78,116 @@ namespace RadioGameController {
     //% blockId="kevin_controller_button_press_on_event" block="on button %button|press %event"
     //% button.fieldEditor="gridpicker" button.fieldOptions.columns=3
     //% weight=93 blockGap=8
-    export function onButtonPress(button: RadioControllerButtonPins, event: RadioControllerButtonEvents, handler: Action) {
+    export function onButtonPress(button: ButtonPins, event: ButtonEvents, handler: Action) {
         if (!handlers) {
-            handlers = [];
+            handlers = {};
         }
         if (!handlers[button]) {
-            handlers[button] = [];
+            handlers[button] = {};
         }
         handlers[button][event] = handler;
     }
 
-    function init(radioId: number, noController: boolean) {
+    /**
+     * Run vibration motor for a particular length of time
+     * @param run_time is the length of time the motor will run in ms, eg: 100
+     */
+    //% group=Feedback
+    //% blockId="kevin_controller_run_motor" block="Run motor for %run_time|ms" icon="\uf080"
+    //% weight=92 blockGap=8
+    export function runMotor(run_time: number): void {
+        doRequestMotorRun(run_time)
+    }
+
+    function initRadio(radioId: number, m: Mode) {
         enabled=true;
         radio.setGroup(radioId)
         if (!handlers) {
-            handlers = [];
+            handlers = {};
         }
 
-        control.onEvent(RadioControllerButtonPins.ButtonAB, RadioControllerButtonEvents.Up, () => doAction(RadioControllerButtonPins.ButtonAB, RadioControllerButtonEvents.Up))
-        control.onEvent(RadioControllerButtonPins.ButtonA, RadioControllerButtonEvents.Up, () => doAction(RadioControllerButtonPins.ButtonA, RadioControllerButtonEvents.Up))
-        control.onEvent(RadioControllerButtonPins.ButtonB, RadioControllerButtonEvents.Up, () => doAction(RadioControllerButtonPins.ButtonB, RadioControllerButtonEvents.Up))
-        control.onEvent(RadioControllerButtonPins.Up, RadioControllerButtonEvents.Up, () => doAction(RadioControllerButtonPins.Up, RadioControllerButtonEvents.Up))
-        control.onEvent(RadioControllerButtonPins.Down, RadioControllerButtonEvents.Up, () => doAction(RadioControllerButtonPins.Down, RadioControllerButtonEvents.Up))
-        control.onEvent(RadioControllerButtonPins.Left, RadioControllerButtonEvents.Up, () => doAction(RadioControllerButtonPins.Left, RadioControllerButtonEvents.Up))
-        control.onEvent(RadioControllerButtonPins.Right, RadioControllerButtonEvents.Up, () => doAction(RadioControllerButtonPins.Right, RadioControllerButtonEvents.Up))
-        control.onEvent(RadioControllerButtonPins.Fire1, RadioControllerButtonEvents.Up, () => doAction(RadioControllerButtonPins.Fire1, RadioControllerButtonEvents.Up))
-        control.onEvent(RadioControllerButtonPins.Fire2, RadioControllerButtonEvents.Up, () => doAction(RadioControllerButtonPins.Fire2, RadioControllerButtonEvents.Up))
+        mode = m;
+        if (m == Mode.CONTROLLER) {
+            control.onEvent(ButtonPins.ButtonAB, ButtonEvents.Up, () => doAction(ButtonPins.ButtonAB, ButtonEvents.Up))
+            control.onEvent(ButtonPins.ButtonA, ButtonEvents.Up, () => doAction(ButtonPins.ButtonA, ButtonEvents.Up))
+            control.onEvent(ButtonPins.ButtonB, ButtonEvents.Up, () => doAction(ButtonPins.ButtonB, ButtonEvents.Up))
+            control.onEvent(ButtonPins.Up, ButtonEvents.Up, () => doAction(ButtonPins.Up, ButtonEvents.Up))
+            control.onEvent(ButtonPins.Down, ButtonEvents.Up, () => doAction(ButtonPins.Down, ButtonEvents.Up))
+            control.onEvent(ButtonPins.Left, ButtonEvents.Up, () => doAction(ButtonPins.Left, ButtonEvents.Up))
+            control.onEvent(ButtonPins.Right, ButtonEvents.Up, () => doAction(ButtonPins.Right, ButtonEvents.Up))
+            control.onEvent(ButtonPins.Fire1, ButtonEvents.Up, () => doAction(ButtonPins.Fire1, ButtonEvents.Up))
+            control.onEvent(ButtonPins.Fire2, ButtonEvents.Up, () => doAction(ButtonPins.Fire2, ButtonEvents.Up))
 
-        control.onEvent(RadioControllerButtonPins.ButtonAB, RadioControllerButtonEvents.Down, () => doAction(RadioControllerButtonPins.ButtonAB, RadioControllerButtonEvents.Down))
-        control.onEvent(RadioControllerButtonPins.ButtonA, RadioControllerButtonEvents.Down, () => doAction(RadioControllerButtonPins.ButtonA, RadioControllerButtonEvents.Down))
-        control.onEvent(RadioControllerButtonPins.ButtonB, RadioControllerButtonEvents.Down, () => doAction(RadioControllerButtonPins.ButtonB, RadioControllerButtonEvents.Down))
-        control.onEvent(RadioControllerButtonPins.Up, RadioControllerButtonEvents.Down, () => doAction(RadioControllerButtonPins.Up, RadioControllerButtonEvents.Down))
-        control.onEvent(RadioControllerButtonPins.Down, RadioControllerButtonEvents.Down, () => doAction(RadioControllerButtonPins.Down, RadioControllerButtonEvents.Down))
-        control.onEvent(RadioControllerButtonPins.Left, RadioControllerButtonEvents.Down, () => doAction(RadioControllerButtonPins.Left, RadioControllerButtonEvents.Down))
-        control.onEvent(RadioControllerButtonPins.Right, RadioControllerButtonEvents.Down, () => doAction(RadioControllerButtonPins.Right, RadioControllerButtonEvents.Down))
-        control.onEvent(RadioControllerButtonPins.Fire1, RadioControllerButtonEvents.Down, () => doAction(RadioControllerButtonPins.Fire1, RadioControllerButtonEvents.Down))
-        control.onEvent(RadioControllerButtonPins.Fire2, RadioControllerButtonEvents.Down, () => doAction(RadioControllerButtonPins.Fire2, RadioControllerButtonEvents.Down))
+            control.onEvent(ButtonPins.ButtonAB, ButtonEvents.Down, () => doAction(ButtonPins.ButtonAB, ButtonEvents.Down))
+            control.onEvent(ButtonPins.ButtonA, ButtonEvents.Down, () => doAction(ButtonPins.ButtonA, ButtonEvents.Down))
+            control.onEvent(ButtonPins.ButtonB, ButtonEvents.Down, () => doAction(ButtonPins.ButtonB, ButtonEvents.Down))
+            control.onEvent(ButtonPins.Up, ButtonEvents.Down, () => doAction(ButtonPins.Up, ButtonEvents.Down))
+            control.onEvent(ButtonPins.Down, ButtonEvents.Down, () => doAction(ButtonPins.Down, ButtonEvents.Down))
+            control.onEvent(ButtonPins.Left, ButtonEvents.Down, () => doAction(ButtonPins.Left, ButtonEvents.Down))
+            control.onEvent(ButtonPins.Right, ButtonEvents.Down, () => doAction(ButtonPins.Right, ButtonEvents.Down))
+            control.onEvent(ButtonPins.Fire1, ButtonEvents.Down, () => doAction(ButtonPins.Fire1, ButtonEvents.Down))
+            control.onEvent(ButtonPins.Fire2, ButtonEvents.Down, () => doAction(ButtonPins.Fire2, ButtonEvents.Down))
 
-        control.onEvent(RadioControllerButtonPins.ButtonAB, RadioControllerButtonEvents.Click, () => doAction(RadioControllerButtonPins.ButtonAB, RadioControllerButtonEvents.Click))
-        control.onEvent(RadioControllerButtonPins.ButtonA, RadioControllerButtonEvents.Click, () => doAction(RadioControllerButtonPins.ButtonA, RadioControllerButtonEvents.Click))
-        control.onEvent(RadioControllerButtonPins.ButtonB, RadioControllerButtonEvents.Click, () => doAction(RadioControllerButtonPins.ButtonB, RadioControllerButtonEvents.Click))
-        control.onEvent(RadioControllerButtonPins.Up, RadioControllerButtonEvents.Click, () => doAction(RadioControllerButtonPins.Up, RadioControllerButtonEvents.Click))
-        control.onEvent(RadioControllerButtonPins.Down, RadioControllerButtonEvents.Click, () => doAction(RadioControllerButtonPins.Down, RadioControllerButtonEvents.Click))
-        control.onEvent(RadioControllerButtonPins.Left, RadioControllerButtonEvents.Click, () => doAction(RadioControllerButtonPins.Left, RadioControllerButtonEvents.Click))
-        control.onEvent(RadioControllerButtonPins.Right, RadioControllerButtonEvents.Click, () => doAction(RadioControllerButtonPins.Right, RadioControllerButtonEvents.Click))
-        control.onEvent(RadioControllerButtonPins.Fire1, RadioControllerButtonEvents.Click, () => doAction(RadioControllerButtonPins.Fire1, RadioControllerButtonEvents.Click))
-        control.onEvent(RadioControllerButtonPins.Fire2, RadioControllerButtonEvents.Click, () => doAction(RadioControllerButtonPins.Fire2, RadioControllerButtonEvents.Click))
+            control.onEvent(ButtonPins.ButtonAB, ButtonEvents.Click, () => doAction(ButtonPins.ButtonAB, ButtonEvents.Click))
+            control.onEvent(ButtonPins.ButtonA, ButtonEvents.Click, () => doAction(ButtonPins.ButtonA, ButtonEvents.Click))
+            control.onEvent(ButtonPins.ButtonB, ButtonEvents.Click, () => doAction(ButtonPins.ButtonB, ButtonEvents.Click))
+            control.onEvent(ButtonPins.Up, ButtonEvents.Click, () => doAction(ButtonPins.Up, ButtonEvents.Click))
+            control.onEvent(ButtonPins.Down, ButtonEvents.Click, () => doAction(ButtonPins.Down, ButtonEvents.Click))
+            control.onEvent(ButtonPins.Left, ButtonEvents.Click, () => doAction(ButtonPins.Left, ButtonEvents.Click))
+            control.onEvent(ButtonPins.Right, ButtonEvents.Click, () => doAction(ButtonPins.Right, ButtonEvents.Click))
+            control.onEvent(ButtonPins.Fire1, ButtonEvents.Click, () => doAction(ButtonPins.Fire1, ButtonEvents.Click))
+            control.onEvent(ButtonPins.Fire2, ButtonEvents.Click, () => doAction(ButtonPins.Fire2, ButtonEvents.Click))
+
+        }
     }
 
 
-    function doAction(button: RadioControllerButtonPins, event: RadioControllerButtonEvents) {
+    function doAction(button: ButtonPins, event: ButtonEvents) {
+        if (event == ButtonEvents.Down) {
+            led.plot(0,0)
+        }
+        if (event == ButtonEvents.Up) {
+            led.plot(1, 0)
+        }
+        if (event == ButtonEvents.Click) {
+            led.plot(2, 0)
+        }
         doSendButtonState(button, event)
-        if (handlers[button] && handlers[button][event]) {
-            handlers[button][event]()
+        if (mode == Mode.CONTROLLER) {
+            if (handlers[button] && handlers[button][event]) {
+                handlers[button][event]()
+            }
         }
     }
 
-    function doSendButtonState(button: RadioControllerButtonPins, event: RadioControllerButtonEvents) {
-        radio.sendValue("rgc_" + button, event)
+    function doSendButtonState(button: ButtonPins, event: ButtonEvents) {
+        radio.sendValue("b_" + button, event)
+    }
+
+    function doRequestMotorRun(run_time: number) {
+        radio.sendValue("reqmotor", run_time)
     }
 
     radio.onReceivedValue(function (name, value) {
         if (enabled) {
-            let splitted = name.split("_")
-            if (splitted[0].compare("rgc_")) {
-                let b = parseInt(splitted[1])
-                if (handlers[b] && handlers[b][value]) {
-                    handlers[b][value]()
+            if (name == "reqmotor") {
+                pins.digitalWritePin(DigitalPin.P1, 1)
+                basic.pause(value)
+                pins.digitalWritePin(DigitalPin.P1, 0)
+            } else {
+                let splitted = name.split("_")
+                if (splitted[0].compare("b_")) {
+                    let button = parseInt(splitted[1])
+                    if (handlers[button] && handlers[button][value]) {
+                        handlers[button][value]()
+                    }
+                    if (value == ButtonEvents.Up) {
+                        remoteState[button] = 0
+                    } else if (value == ButtonEvents.Down) {
+                        remoteState[button] = 1
+                    }
                 }
             }
         }
     })
-
-
 }
