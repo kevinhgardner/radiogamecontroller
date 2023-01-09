@@ -11,7 +11,7 @@
         "main.ts",
         "main.cpp",
         "README.md",
-        "shim.d.ts"
+        "shims.d.ts"
     ],
     "testFiles": [
         "test.ts"
