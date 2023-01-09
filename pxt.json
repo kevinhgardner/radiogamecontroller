@@ -12,7 +12,7 @@
         "main.cpp",
         "README.md",
         "shims.d.ts",
-	"enum.d.ts"
+	"enums.d.ts"
     ],
     "testFiles": [
         "test.ts"
