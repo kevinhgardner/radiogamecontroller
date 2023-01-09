@@ -4,15 +4,14 @@
     "dependencies": {
         "core": "*",
         "radio": "*",
-        "microphone": "*",
-        "pxt-kitronik-game-controller": "github:kitronikltd/pxt-kitronik-game-controller#V0.0.4"
+        "microphone": "*"
     },
     "files": [
         "main.ts",
         "main.cpp",
         "README.md",
         "shims.d.ts",
-	"enums.d.ts"
+        "enums.d.ts"
     ],
     "testFiles": [
         "test.ts"

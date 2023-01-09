@@ -70,6 +70,14 @@ namespace RadioGameController {
     }
 
     /**
+     *
+     */
+    //% shim=RadioGameController::init
+    function init(): void {
+        return;
+    }
+
+    /**
      * Do something when one of the :GAME Controller Buttons is pressed
      * @param button press to be checked
      * @param event happening on the button, eg: click
@@ -100,6 +108,7 @@ namespace RadioGameController {
     }
 
     function initRadio(radioId: number, m: Mode) {
+        init()
         enabled=true;
         radio.setGroup(radioId)
         if (!handlers) {
@@ -143,15 +152,6 @@ namespace RadioGameController {
 
 
     function doAction(button: ButtonPins, event: ButtonEvents) {
-        if (event == ButtonEvents.Down) {
-            led.plot(0,0)
-        }
-        if (event == ButtonEvents.Up) {
-            led.plot(1, 0)
-        }
-        if (event == ButtonEvents.Click) {
-            led.plot(2, 0)
-        }
         doSendButtonState(button, event)
         if (mode == Mode.CONTROLLER) {
             if (handlers[button] && handlers[button][event]) {
