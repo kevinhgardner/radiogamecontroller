@@ -9,6 +9,7 @@
     },
     "files": [
         "main.ts",
+	"main.cpp",
         "README.md"
     ],
     "testFiles": [
