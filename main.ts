@@ -108,7 +108,9 @@ namespace RadioGameController {
     }
 
     function initRadio(radioId: number, m: Mode) {
-        init()
+        if (m == Mode.CONTROLLER) {
+            init()
+        }
         enabled=true;
         radio.setGroup(radioId)
         if (!handlers) {
